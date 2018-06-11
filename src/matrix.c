@@ -3,12 +3,14 @@
 #include "matrix.h"
 #include "util.h"
 
-void normalize(float *x, float *y, float *z) {
+void normalize(float *x, float *y, float *z)
+{
     float d = sqrtf((*x) * (*x) + (*y) * (*y) + (*z) * (*z));
     *x /= d; *y /= d; *z /= d;
 }
 
-void mat_identity(float *matrix) {
+void mat_identity(float *matrix)
+{
     matrix[0] = 1;
     matrix[1] = 0;
     matrix[2] = 0;
@@ -27,7 +29,8 @@ void mat_identity(float *matrix) {
     matrix[15] = 1;
 }
 
-void mat_translate(float *matrix, float dx, float dy, float dz) {
+void mat_translate(float *matrix, float dx, float dy, float dz)
+{
     matrix[0] = 1;
     matrix[1] = 0;
     matrix[2] = 0;
@@ -46,7 +49,8 @@ void mat_translate(float *matrix, float dx, float dy, float dz) {
     matrix[15] = 1;
 }
 
-void mat_rotate(float *matrix, float x, float y, float z, float angle) {
+void mat_rotate(float *matrix, float x, float y, float z, float angle)
+{
     normalize(&x, &y, &z);
     float s = sinf(angle);
     float c = cosf(angle);
@@ -69,29 +73,37 @@ void mat_rotate(float *matrix, float x, float y, float z, float angle) {
     matrix[15] = 1;
 }
 
-void mat_vec_multiply(float *vector, float *a, float *b) {
+void mat_vec_multiply(float *vector, float *a, float *b)
+{
     float result[4];
-    for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++)
+    {
         float total = 0;
-        for (int j = 0; j < 4; j++) {
+        for(int j = 0; j < 4; j++)
+        {
             int p = j * 4 + i;
             int q = j;
             total += a[p] * b[q];
         }
         result[i] = total;
     }
-    for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++)
+    {
         vector[i] = result[i];
     }
 }
 
-void mat_multiply(float *matrix, float *a, float *b) {
+void mat_multiply(float *matrix, float *a, float *b)
+{
     float result[16];
-    for (int c = 0; c < 4; c++) {
-        for (int r = 0; r < 4; r++) {
+    for(int c = 0; c < 4; c++)
+    {
+        for(int r = 0; r < 4; r++)
+        {
             int index = c * 4 + r;
             float total = 0;
-            for (int i = 0; i < 4; i++) {
+            for(int i = 0; i < 4; i++)
+            {
                 int p = i * 4 + r;
                 int q = c * 4 + i;
                 total += a[p] * b[q];
@@ -99,14 +111,17 @@ void mat_multiply(float *matrix, float *a, float *b) {
             result[index] = total;
         }
     }
-    for (int i = 0; i < 16; i++) {
+    for(int i = 0; i < 16; i++)
+    {
         matrix[i] = result[i];
     }
 }
 
-void mat_apply(float *data, float *matrix, int count, int offset, int stride) {
+void mat_apply(float *data, float *matrix, int count, int offset, int stride)
+{
     float vec[4] = {0, 0, 0, 1};
-    for (int i = 0; i < count; i++) {
+    for(int i = 0; i < count; i++)
+    {
         float *d = data + offset + stride * i;
         vec[0] = *(d++); vec[1] = *(d++); vec[2] = *(d++);
         mat_vec_multiply(vec, matrix, vec);
@@ -115,7 +130,8 @@ void mat_apply(float *data, float *matrix, int count, int offset, int stride) {
     }
 }
 
-void frustum_planes(float planes[6][4], int radius, float *matrix) {
+void frustum_planes(float planes[6][4], int radius, float *matrix)
+{
     float znear = 0.125;
     float zfar = radius * 32 + 64;
     float *m = matrix;
@@ -204,7 +220,8 @@ void mat_ortho(
     matrix[15] = 1;
 }
 
-void set_matrix_2d(float *matrix, int width, int height) {
+void set_matrix_2d(float *matrix, int width, int height)
+{
     mat_ortho(matrix, 0, width, 0, height, -1, 1);
 }
 
@@ -225,11 +242,13 @@ void set_matrix_3d(
     mat_multiply(a, b, a);
     mat_rotate(b, 0, 1, 0, -rx);
     mat_multiply(a, b, a);
-    if (ortho) {
+    if(ortho)
+    {
         int size = ortho;
         mat_ortho(b, -size * aspect, size * aspect, -size, size, -zfar, zfar);
     }
-    else {
+    else
+    {
         mat_perspective(b, fov, aspect, znear, zfar);
     }
     mat_multiply(a, b, a);
@@ -237,7 +256,8 @@ void set_matrix_3d(
     mat_multiply(matrix, a, matrix);
 }
 
-void set_matrix_item(float *matrix, int width, int height, float scale) {
+void set_matrix_item(float *matrix, int width, int height, float scale)
+{
     float a[16];
     float b[16];
     float aspect = (float)width / height;

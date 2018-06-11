@@ -10,6 +10,11 @@ void make_cube(
     float *data, float ao[6][4], float light[6][4],
     int left, int right, int top, int bottom, int front, int back,
     float x, float y, float z, float n, int w);
+    
+void make_fluid_cube(
+	float *data, float ao[6][4], float light[6][4],
+    int left, int right, int top, int bottom, int front, int back,
+    float x, float y, float z, float n, int w);
 
 void make_plant(
     float *data, float ao, float light,

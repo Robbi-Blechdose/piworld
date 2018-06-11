@@ -24,6 +24,10 @@
 #define SUN_FLOWER 21
 #define WHITE_FLOWER 22
 #define BLUE_FLOWER 23
+
+#define TORCH 24
+#define WATER 25
+
 #define COLOR_00 32
 #define COLOR_01 33
 #define COLOR_02 34
@@ -63,7 +67,7 @@ extern const int blocks[256][6];
 extern const int plants[256];
 
 int is_plant(int w);
+int is_fluid(int w);
 int is_obstacle(int w);
 int is_transparent(int w);
 int is_destructable(int w);
-

@@ -1,7 +1,8 @@
 #include "item.h"
 #include "util.h"
 
-const int items[] = {
+const int items[] =
+{
     // items the user can build
     GRASS,
     SAND,
@@ -25,6 +26,8 @@ const int items[] = {
     SUN_FLOWER,
     WHITE_FLOWER,
     BLUE_FLOWER,
+    TORCH,
+    WATER,
     COLOR_00,
     COLOR_01,
     COLOR_02,
@@ -61,7 +64,8 @@ const int items[] = {
 
 const int item_count = sizeof(items) / sizeof(int);
 
-const int blocks[256][6] = {
+const int blocks[256][6] =
+{
     // w => (left, right, top, bottom, front, back) tiles
     {0, 0, 0, 0, 0, 0}, // 0 - empty
     {16, 16, 32, 0, 16, 16}, // 1 - grass
@@ -88,7 +92,7 @@ const int blocks[256][6] = {
     {0, 0, 0, 0, 0, 0}, // 22
     {0, 0, 0, 0, 0, 0}, // 23
     {0, 0, 0, 0, 0, 0}, // 24
-    {0, 0, 0, 0, 0, 0}, // 25
+    {17, 17, 17, 17, 17, 17}, // 25 - water
     {0, 0, 0, 0, 0, 0}, // 26
     {0, 0, 0, 0, 0, 0}, // 27
     {0, 0, 0, 0, 0, 0}, // 28
@@ -129,7 +133,8 @@ const int blocks[256][6] = {
     {207, 207, 207, 207, 207, 207}, // 63
 };
 
-const int plants[256] = {
+const int plants[256] =
+{
     // w => tile
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0 - 16
     48, // 17 - tall grass
@@ -139,10 +144,13 @@ const int plants[256] = {
     52, // 21 - sun flower
     53, // 22 - white flower
     54, // 23 - blue flower
+    55, // 24 - torch
 };
 
-int is_plant(int w) {
-    switch (w) {
+int is_plant(int w)
+{
+    switch (w)
+    {
         case TALL_GRASS:
         case YELLOW_FLOWER:
         case RED_FLOWER:
@@ -150,46 +158,69 @@ int is_plant(int w) {
         case SUN_FLOWER:
         case WHITE_FLOWER:
         case BLUE_FLOWER:
+        case TORCH:
             return 1;
         default:
             return 0;
     }
 }
 
-int is_obstacle(int w) {
+int is_fluid(int w)
+{
+    switch(w)
+    {
+        case WATER:
+            return 1;
+        default:
+		    return 0;
+	}
+}
+
+int is_obstacle(int w)
+{
     w = ABS(w);
-    if (is_plant(w)) {
+    if(is_plant(w))
+    {
         return 0;
     }
-    switch (w) {
+    switch(w)
+    {
         case EMPTY:
         case CLOUD:
+        case WATER:
             return 0;
         default:
             return 1;
     }
 }
 
-int is_transparent(int w) {
-    if (w == EMPTY) {
+int is_transparent(int w)
+{
+    if(w == EMPTY)
+    {
         return 1;
     }
     w = ABS(w);
-    if (is_plant(w)) {
+    if(is_plant(w))
+    {
         return 1;
     }
-    switch (w) {
+    switch (w)
+    {
         case EMPTY:
         case GLASS:
         case LEAVES:
+        case WATER:
             return 1;
         default:
             return 0;
     }
 }
 
-int is_destructable(int w) {
-    switch (w) {
+int is_destructable(int w)
+{
+    switch (w)
+    {
         case EMPTY:
         case CLOUD:
             return 0;

@@ -14,7 +14,8 @@
 Config _config;
 Config *config = &_config;
 
-void reset_config() {
+void reset_config()
+{
     get_config_path(config->path);
     get_default_db_path(config->db_path);
     config->port = DEFAULT_PORT;
@@ -68,31 +69,41 @@ void get_server_db_cache_path(char *path)
 int get_starting_draw_radius()
 {
     int gpu_mb = pg_get_gpu_mem_size();
-    if (gpu_mb < 48) {
+    if(gpu_mb < 48)
+    {
         // A draw distance of 1 is not enough for the game to be usable, but
         // this does at least show something on screen (for low resolutions
         // only - higher ones will crash the game with low GPU RAM).
         return 1;
-    } else if (gpu_mb < 64) {
+    }
+    else if(gpu_mb < 64)
+    {
         return 2;
-    } else if (gpu_mb < 128) {
+    }
+    else if (gpu_mb < 128)
+    {
         // A GPU RAM size of 64M will result in rendering issues for draw
         // distances greater than 3 (with a chunk size of 16).
         return 3;
-    } else {
+    }
+    else
+    {
         // For the Raspberry Pi reduce amount to draw to both fit into 128MiB
         // of GPU RAM and keep the render speed at a reasonable smoothness.
         return 5;
     }
 }
 
-void parse_startup_config(int argc, char **argv) {
+void parse_startup_config(int argc, char **argv)
+{
     int c;
     const char *opt_name;
 
-    while (1) {
+    while (1)
+    {
         int option_index = 0;
-        static struct option long_options[] = {
+        static struct option long_options[] =
+        {
             {"port",              required_argument, 0,  0 },
             {"server",            required_argument, 0,  0 },
             {"show-chat-text",    required_argument, 0,  0 },
@@ -119,7 +130,8 @@ void parse_startup_config(int argc, char **argv) {
         if (c == -1)
             break;
 
-        switch (c) {
+        switch (c)
+        {
         case 0:
             opt_name = long_options[option_index].name;
             if (strncmp(opt_name, "port", 4) == 0 &&
@@ -183,12 +195,14 @@ void parse_startup_config(int argc, char **argv) {
         }
     }
 
-    if (optind < argc) {
+    if(optind < argc)
+    {
         strncpy(config->db_path, argv[optind++], MAX_PATH_LENGTH);
-        if (optind < argc) {
+        if(optind < argc)
+        {
             // Exit on extra unnamed arguments
             printf("unused ARGV-elements: ");
-            while (optind < argc)
+            while(optind < argc)
                 printf("%s ", argv[optind++]);
             printf("\n");
             exit(1);

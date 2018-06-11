@@ -26,4 +26,3 @@ void db_set_key(int p, int q, int key);
 void db_worker_start();
 void db_worker_stop();
 int db_worker_run(void *arg);
-

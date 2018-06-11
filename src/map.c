@@ -2,7 +2,8 @@
 #include <string.h>
 #include "map.h"
 
-int hash_int(int key) {
+int hash_int(int key)
+{
     key = ~key + (key << 15);
     key = key ^ (key >> 12);
     key = key + (key << 2);
@@ -12,14 +13,16 @@ int hash_int(int key) {
     return key;
 }
 
-int hash(int x, int y, int z) {
+int hash(int x, int y, int z)
+{
     x = hash_int(x);
     y = hash_int(y);
     z = hash_int(z);
     return x ^ y ^ z;
 }
 
-void map_alloc(Map *map, int dx, int dy, int dz, int mask) {
+void map_alloc(Map *map, int dx, int dy, int dz, int mask)
+{
     map->dx = dx;
     map->dy = dy;
     map->dz = dz;
@@ -28,11 +31,13 @@ void map_alloc(Map *map, int dx, int dy, int dz, int mask) {
     map->data = (MapEntry *)calloc(map->mask + 1, sizeof(MapEntry));
 }
 
-void map_free(Map *map) {
+void map_free(Map *map)
+{
     free(map->data);
 }
 
-void map_copy(Map *dst, Map *src) {
+void map_copy(Map *dst, Map *src)
+{
     dst->dx = src->dx;
     dst->dy = src->dy;
     dst->dz = src->dz;
@@ -42,34 +47,41 @@ void map_copy(Map *dst, Map *src) {
     memcpy(dst->data, src->data, (dst->mask + 1) * sizeof(MapEntry));
 }
 
-int map_set(Map *map, int x, int y, int z, int w) {
+int map_set(Map *map, int x, int y, int z, int w)
+{
     unsigned int index = hash(x, y, z) & map->mask;
     x -= map->dx;
     y -= map->dy;
     z -= map->dz;
     MapEntry *entry = map->data + index;
     int overwrite = 0;
-    while (!EMPTY_ENTRY(entry)) {
-        if (entry->e.x == x && entry->e.y == y && entry->e.z == z) {
+    while(!EMPTY_ENTRY(entry))
+    {
+        if(entry->e.x == x && entry->e.y == y && entry->e.z == z)
+        {
             overwrite = 1;
             break;
         }
         index = (index + 1) & map->mask;
         entry = map->data + index;
     }
-    if (overwrite) {
-        if (entry->e.w != w) {
+    if(overwrite)
+    {
+        if(entry->e.w != w)
+        {
             entry->e.w = w;
             return 1;
         }
     }
-    else if (w) {
+    else if(w)
+    {
         entry->e.x = x;
         entry->e.y = y;
         entry->e.z = z;
         entry->e.w = w;
         map->size++;
-        if (map->size * 2 > map->mask) {
+        if(map->size * 2 > map->mask)
+        {
             map_grow(map);
         }
         return 1;
@@ -77,7 +89,8 @@ int map_set(Map *map, int x, int y, int z, int w) {
     return 0;
 }
 
-int map_get(Map *map, int x, int y, int z) {
+int map_get(Map *map, int x, int y, int z)
+{
     unsigned int index = hash(x, y, z) & map->mask;
     x -= map->dx;
     y -= map->dy;
@@ -86,8 +99,10 @@ int map_get(Map *map, int x, int y, int z) {
     if (y < 0 || y > 255) return 0;
     if (z < 0 || z > 255) return 0;
     MapEntry *entry = map->data + index;
-    while (!EMPTY_ENTRY(entry)) {
-        if (entry->e.x == x && entry->e.y == y && entry->e.z == z) {
+    while(!EMPTY_ENTRY(entry))
+    {
+        if(entry->e.x == x && entry->e.y == y && entry->e.z == z)
+        {
             return entry->e.w;
         }
         index = (index + 1) & map->mask;
@@ -96,7 +111,8 @@ int map_get(Map *map, int x, int y, int z) {
     return 0;
 }
 
-void map_grow(Map *map) {
+void map_grow(Map *map)
+{
     Map new_map;
     new_map.dx = map->dx;
     new_map.dy = map->dy;
@@ -104,7 +120,8 @@ void map_grow(Map *map) {
     new_map.mask = (map->mask << 1) | 1;
     new_map.size = 0;
     new_map.data = (MapEntry *)calloc(new_map.mask + 1, sizeof(MapEntry));
-    MAP_FOR_EACH(map, ex, ey, ez, ew) {
+    MAP_FOR_EACH(map, ex, ey, ez, ew)
+    {
         map_set(&new_map, ex, ey, ez, ew);
     } END_MAP_FOR_EACH;
     free(map->data);
