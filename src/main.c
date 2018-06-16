@@ -3138,7 +3138,7 @@ int main(int argc, char **argv)
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    load_png_texture("textures/texture.png");
+    load_png_texture("textures/texture-new.png");
 
     GLuint font;
     glGenTextures(1, &font);
@@ -3366,6 +3366,10 @@ int main(int argc, char **argv)
             glClear(GL_DEPTH_BUFFER_BIT);
             render_sky(&sky_attrib, player, sky_buffer);
             glClear(GL_DEPTH_BUFFER_BIT);
+            
+	        glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            
             int face_count = render_chunks(&block_attrib, player);
             render_signs(&text_attrib, player);
             render_sign(&text_attrib, player);

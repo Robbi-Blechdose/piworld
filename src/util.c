@@ -7,21 +7,25 @@
 #include "matrix.h"
 #include "util.h"
 
-int rand_int(int n) {
+int rand_int(int n)
+{
     int result;
     while (n <= (result = rand() / (RAND_MAX / n)));
     return result;
 }
 
-double rand_double() {
+double rand_double()
+{
     return (double)rand() / (double)RAND_MAX;
 }
 
-void update_fps(FPS *fps) {
+void update_fps(FPS *fps)
+{
     fps->frames++;
     double now = pg_get_time();
     double elapsed = now - fps->since;
-    if (elapsed >= 1) {
+    if(elapsed >= 1)
+    {
         fps->fps = round(fps->frames / elapsed);
         fps->frames = 0;
         fps->since = now;

@@ -3,7 +3,7 @@
 // app parameters
 #define WINDOW_TITLE "PiWorld"
 #define FULLSCREEN 0
-#define WINDOW_WIDTH 640 //720 for the Pi2
+#define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 #define VSYNC 1
 #define MAX_MESSAGES 4
@@ -12,7 +12,7 @@
 #define DAY_LENGTH 600
 #define INVERT_MOUSE 0
 
-#define VIEW_SPEED 1.5
+#define VIEW_SPEED 1.6
 
 // rendering options
 #define SHOW_LIGHTS 1
