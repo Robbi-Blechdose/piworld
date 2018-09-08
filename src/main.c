@@ -338,7 +338,24 @@ GLuint gen_fluid_buffer(float x, float y, float z, float n, int w)
         {0.5, 0.5, 0.5, 0.5},
         {0.5, 0.5, 0.5, 0.5}
     };
-    make_fluid_cube(data, ao, light, 1, 1, 1, 1, 1, 1, x, y, z, n, w);
+    makeFluidCube(data, ao, light, 1, 1, 1, 1, 1, 1, x, y, z, n, w);
+    return gen_faces(10, 6, data);
+}
+
+GLuint genSlabBuffer(float x, float y, float z, float n, int w)
+{
+    GLfloat *data = malloc_faces(10, 6);
+    float ao[6][4] = {0};
+    float light[6][4] =
+    {
+        {0.5, 0.5, 0.5, 0.5},
+        {0.5, 0.5, 0.5, 0.5},
+        {0.5, 0.5, 0.5, 0.5},
+        {0.5, 0.5, 0.5, 0.5},
+        {0.5, 0.5, 0.5, 0.5},
+        {0.5, 0.5, 0.5, 0.5}
+    };
+    makeSlab(data, ao, light, 1, 1, 1, 1, 1, 1, x, y, z, n, w);
     return gen_faces(10, 6, data);
 }
 
@@ -1136,7 +1153,8 @@ void light_fill(
     light_fill(opaque, light, x, y, z + 1, w, 0);
 }
 
-void compute_chunk(WorkerItem *item) {
+void compute_chunk(WorkerItem *item)
+{
     char *opaque = (char *)calloc(XZ_SIZE * XZ_SIZE * Y_SIZE, sizeof(char));
     char *light = (char *)calloc(XZ_SIZE * XZ_SIZE * Y_SIZE, sizeof(char));
     char *highest = (char *)calloc(XZ_SIZE * XZ_SIZE, sizeof(char));
@@ -1147,11 +1165,15 @@ void compute_chunk(WorkerItem *item) {
 
     // check for lights
     int has_light = 0;
-    if (config->show_lights) {
-        for (int a = 0; a < 3; a++) {
-            for (int b = 0; b < 3; b++) {
+    if(config->show_lights)
+    {
+        for(int a = 0; a < 3; a++)
+        {
+            for(int b = 0; b < 3; b++)
+            {
                 Map *map = item->light_maps[a][b];
-                if (map && map->size) {
+                if(map && map->size)
+                {
                     has_light = 1;
                 }
             }
@@ -1159,27 +1181,34 @@ void compute_chunk(WorkerItem *item) {
     }
 
     // populate opaque array
-    for (int a = 0; a < 3; a++) {
-        for (int b = 0; b < 3; b++) {
+    for(int a = 0; a < 3; a++)
+    {
+        for(int b = 0; b < 3; b++)
+        {
             Map *map = item->block_maps[a][b];
-            if (!map) {
+            if(!map)
+            {
                 continue;
             }
-            MAP_FOR_EACH(map, ex, ey, ez, ew) {
+            MAP_FOR_EACH(map, ex, ey, ez, ew)
+            {
                 int x = ex - ox;
                 int y = ey - oy;
                 int z = ez - oz;
                 int w = ew;
                 // TODO: this should be unnecessary
-                if (x < 0 || y < 0 || z < 0) {
+                if(x < 0 || y < 0 || z < 0)
+                {
                     continue;
                 }
-                if (x >= XZ_SIZE || y >= Y_SIZE || z >= XZ_SIZE) {
+                if(x >= XZ_SIZE || y >= Y_SIZE || z >= XZ_SIZE)
+                {
                     continue;
                 }
                 // END TODO
                 opaque[XYZ(x, y, z)] = !is_transparent(w);
-                if (opaque[XYZ(x, y, z)]) {
+                if(opaque[XYZ(x, y, z)])
+                {
                     highest[XZ(x, z)] = MAX(highest[XZ(x, z)], y);
                 }
             } END_MAP_FOR_EACH;
@@ -1187,14 +1216,19 @@ void compute_chunk(WorkerItem *item) {
     }
 
     // flood fill light intensities
-    if (has_light) {
-        for (int a = 0; a < 3; a++) {
-            for (int b = 0; b < 3; b++) {
+    if(has_light)
+    {
+        for(int a = 0; a < 3; a++)
+        {
+            for(int b = 0; b < 3; b++)
+            {
                 Map *map = item->light_maps[a][b];
-                if (!map) {
+                if(!map)
+                {
                     continue;
                 }
-                MAP_FOR_EACH(map, ex, ey, ez, ew) {
+                MAP_FOR_EACH(map, ex, ey, ez, ew)
+                {
                     int x = ex - ox;
                     int y = ey - oy;
                     int z = ez - oz;
@@ -1210,8 +1244,10 @@ void compute_chunk(WorkerItem *item) {
     int miny = 256;
     int maxy = 0;
     int faces = 0;
-    MAP_FOR_EACH(map, ex, ey, ez, ew) {
-        if (ew <= 0) {
+    MAP_FOR_EACH(map, ex, ey, ez, ew)
+    {
+        if(ew <= 0)
+        {
             continue;
         }
         int x = ex - ox;
@@ -1224,10 +1260,19 @@ void compute_chunk(WorkerItem *item) {
         int f5 = !opaque[XYZ(x, y, z - 1)];
         int f6 = !opaque[XYZ(x, y, z + 1)];
         int total = f1 + f2 + f3 + f4 + f5 + f6;
-        if (total == 0) {
+        if(total == 0)
+        {
             continue;
         }
-        if (is_plant(ew)) {
+        //TODO: Remove the commented-out bit
+/*
+        if(is_plant(ew))
+        {
+            total = 4;
+        }
+*/
+        if(getType(ew) == T_QUADS_TRANSPARENT)
+        {
             total = 4;
         }
         miny = MIN(miny, ey);
@@ -1238,8 +1283,10 @@ void compute_chunk(WorkerItem *item) {
     // generate geometry
     GLfloat *data = malloc_faces(10, faces);
     int offset = 0;
-    MAP_FOR_EACH(map, ex, ey, ez, ew) {
-        if (ew <= 0) {
+    MAP_FOR_EACH(map, ex, ey, ez, ew)
+    {
+        if(ew <= 0)
+        {
             continue;
         }
         int x = ex - ox;
@@ -1252,22 +1299,29 @@ void compute_chunk(WorkerItem *item) {
         int f5 = !opaque[XYZ(x, y, z - 1)];
         int f6 = !opaque[XYZ(x, y, z + 1)];
         int total = f1 + f2 + f3 + f4 + f5 + f6;
-        if (total == 0) {
+        if(total == 0)
+        {
             continue;
         }
         char neighbors[27] = {0};
         char lights[27] = {0};
         float shades[27] = {0};
         int index = 0;
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dz = -1; dz <= 1; dz++) {
+        for(int dx = -1; dx <= 1; dx++)
+        {
+            for(int dy = -1; dy <= 1; dy++)
+            {
+                for(int dz = -1; dz <= 1; dz++)
+                {
                     neighbors[index] = opaque[XYZ(x + dx, y + dy, z + dz)];
                     lights[index] = light[XYZ(x + dx, y + dy, z + dz)];
                     shades[index] = 0;
-                    if (y + dy <= highest[XZ(x + dx, z + dz)]) {
-                        for (int oy = 0; oy < 8; oy++) {
-                            if (opaque[XYZ(x + dx, y + dy + oy, z + dz)]) {
+                    if(y + dy <= highest[XZ(x + dx, z + dz)])
+                    {
+                        for(int oy = 0; oy < 8; oy++)
+                        {
+                            if(opaque[XYZ(x + dx, y + dy + oy, z + dz)])
+                            {
                                 shades[index] = 1.0 - oy * 0.125;
                                 break;
                             }
@@ -1280,12 +1334,17 @@ void compute_chunk(WorkerItem *item) {
         float ao[6][4];
         float light[6][4];
         occlusion(neighbors, lights, shades, ao, light);
-        if (is_plant(ew)) {
+        //TODO: Remove commented-out bits
+        //if(is_plant(ew))
+        if(getType(ew) == T_QUADS_TRANSPARENT)
+        {
             total = 4;
             float min_ao = 1;
             float max_light = 0;
-            for (int a = 0; a < 6; a++) {
-                for (int b = 0; b < 4; b++) {
+            for(int a = 0; a < 6; a++)
+            {
+                for(int b = 0; b < 4; b++)
+                {
                     min_ao = MIN(min_ao, ao[a][b]);
                     max_light = MAX(max_light, light[a][b]);
                 }
@@ -1295,14 +1354,22 @@ void compute_chunk(WorkerItem *item) {
                 data + offset, min_ao, max_light,
                 ex, ey, ez, 0.5, ew, rotation);
         }
-        else if(is_fluid(ew))
+        else if(getType(ew) == T_FLUID)
         {
-            make_fluid_cube(
+            makeFluidCube(
                 data + offset, ao, light,
                 f1, f2, f3, f4, f5, f6,
                 ex, ey, ez, 0.5, ew);
-	    }
-        else {
+	}
+        else if(getType(ew) == T_SLAB)
+        {
+            makeSlab(
+                data + offset, ao, light,
+                f1, f2, f3, f4, f5, f6,
+                ex, ey, ez, 0.5, ew);
+        }
+        else
+        {
             make_cube(
                 data + offset, ao, light,
                 f1, f2, f3, f4, f5, f6,
@@ -1331,15 +1398,19 @@ void generate_chunk(Chunk *chunk, WorkerItem *item)
     gen_sign_buffer(chunk);
 }
 
-void gen_chunk_buffer(Chunk *chunk) {
+void gen_chunk_buffer(Chunk *chunk)
+{
     WorkerItem _item;
     WorkerItem *item = &_item;
     item->p = chunk->p;
     item->q = chunk->q;
-    for (int dp = -1; dp <= 1; dp++) {
-        for (int dq = -1; dq <= 1; dq++) {
+    for(int dp = -1; dp <= 1; dp++)
+    {
+        for(int dq = -1; dq <= 1; dq++)
+        {
             Chunk *other = chunk;
-            if (dp || dq) {
+            if(dp || dq)
+            {
                 other = find_chunk(chunk->p + dp, chunk->q + dq);
             }
             if (other) {
@@ -1818,7 +1889,8 @@ void builder_block(int x, int y, int z, int w) {
     }
 }
 
-int render_chunks(Attrib *attrib, Player *player) {
+int render_chunks(Attrib *attrib, Player *player)
+{
     int result = 0;
     State *s = &player->state;
     ensure_chunks(player);
@@ -1840,12 +1912,14 @@ int render_chunks(Attrib *attrib, Player *player) {
     glUniform1f(attrib->extra3, g->render_radius * CHUNK_SIZE);
     glUniform1i(attrib->extra4, g->ortho);
     glUniform1f(attrib->timer, time_of_day());
-    for (int i = 0; i < g->chunk_count; i++) {
+    for(int i = 0; i < g->chunk_count; i++)
+    {
         Chunk *chunk = g->chunks + i;
-        if (chunk_distance(chunk, p, q) > g->render_radius) {
+        if(chunk_distance(chunk, p, q) > g->render_radius)
+        {
             continue;
         }
-        if (!chunk_visible(
+        if(!chunk_visible(
             planes, chunk->p, chunk->q, chunk->miny, chunk->maxy))
         {
             continue;
@@ -1984,23 +2058,36 @@ void render_item(Attrib *attrib)
     glUniform1i(attrib->sampler, 0);
     glUniform1f(attrib->timer, time_of_day());
     int w = items[g->item_index];
-    if(is_plant(w))
+    switch(getType(w))
     {
-        GLuint buffer = gen_plant_buffer(0, 0, 0, 0.5, w);
-        draw_plant(attrib, buffer);
-        del_buffer(buffer);
-    }
-    else if(is_fluid(w))
-    {
-        GLuint buffer = gen_fluid_buffer(0, 0, 0, 0.5, w);
-        draw_cube(attrib, buffer);
-        del_buffer(buffer);
-    }
-    else
-    {
-        GLuint buffer = gen_cube_buffer(0, 0, 0, 0.5, w);
-        draw_cube(attrib, buffer);
-        del_buffer(buffer);
+        case T_QUADS_TRANSPARENT:
+        {
+            GLuint buffer = gen_plant_buffer(0, 0, 0, 0.5, w);
+            draw_plant(attrib, buffer);
+            del_buffer(buffer);
+            break;
+        }
+        case T_FLUID:
+        {
+            GLuint buffer = gen_fluid_buffer(0, 0, 0, 0.5, w);
+            draw_cube(attrib, buffer);
+            del_buffer(buffer);
+            break;
+        }
+        case T_SLAB:
+        {
+            GLuint buffer = genSlabBuffer(0, 0, 0, 0.5, w);
+            draw_cube(attrib, buffer);
+            del_buffer(buffer);
+            break;
+        }
+        default:
+        {
+            GLuint buffer = gen_cube_buffer(0, 0, 0, 0.5, w);
+            draw_cube(attrib, buffer);
+            del_buffer(buffer);
+            break;
+        }
     }
 }
 
@@ -2484,12 +2571,14 @@ void handle_mouse_input() {
     }
 }
 
-void handle_movement(double dt) {
+void handle_movement(double dt)
+{
     static float dy = 0;
     State *s = &g->players->state;
     int sz = 0;
     int sx = 0;
-    if (!g->typing) {
+    if(!g->typing)
+    {
         float m = dt * 1.0 * VIEW_SPEED;
 
         // View distance
@@ -2505,12 +2594,15 @@ void handle_movement(double dt) {
         // View direction
         if (view_left_is_pressed) s->rx -= m;
         if (view_right_is_pressed) s->rx += m;
-        if (view_up_is_pressed) s->ry += m;
-        if (view_down_is_pressed) s->ry -= m;
+        //Limit looking up to 90 degrees (value is radians)
+        if (view_up_is_pressed && s->ry < 1.5708) s->ry += m;
+        //Limit looking down to -90 degrees (value is radians)
+        if (view_down_is_pressed && s->ry > -1.5708) s->ry -= m;
     }
     float vx, vy, vz;
     get_motion_vector(g->flying, sz, sx, s->rx, s->ry, &vx, &vy, &vz);
-    if (!g->typing) {
+    if(!g->typing)
+    {
         if (jump_is_pressed) {
             if (g->flying) {
                 vy = 1;
@@ -3138,7 +3230,7 @@ int main(int argc, char **argv)
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    load_png_texture("textures/texture-new.png");
+    load_png_texture("textures/texture.png");
 
     GLuint font;
     glGenTextures(1, &font);
@@ -3296,7 +3388,7 @@ int main(int argc, char **argv)
 
         //VIEW SETUP
         g->ortho = 0;
-        g->fov = 65;
+        g->fov = FOV;
 
         //BEGIN MAIN LOOP
         double previous = pg_get_time();
@@ -3367,13 +3459,13 @@ int main(int argc, char **argv)
             render_sky(&sky_attrib, player, sky_buffer);
             glClear(GL_DEPTH_BUFFER_BIT);
             
-	        glEnable(GL_BLEND);
+            glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            
             int face_count = render_chunks(&block_attrib, player);
             render_signs(&text_attrib, player);
             render_sign(&text_attrib, player);
             render_players(&block_attrib, player);
+            glDisable(GL_BLEND);
             if(config->show_wireframe)
             {
                 render_wireframe(&line_attrib, player);

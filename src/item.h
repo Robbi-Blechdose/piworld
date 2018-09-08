@@ -27,6 +27,7 @@
 
 #define TORCH 24
 #define WATER 25
+#define SLAB_WOOD 26
 
 #define COLOR_00 32
 #define COLOR_01 33
@@ -61,13 +62,20 @@
 #define COLOR_30 62
 #define COLOR_31 63
 
+#define T_BLOCK 0 //Standard blocks
+#define T_BLOCK_TRANSPARENT 1 //Glass ...
+#define T_QUADS_TRANSPARENT 2 //Flowers, Grass ...
+#define T_FLUID 3 //Water ...
+#define T_SLAB 4 //Slabs of every kind
+#define T_STAIRS 5 //Stairs of every kind
+
 extern const int items[];
 extern const int item_count;
-extern const int blocks[256][6];
-extern const int plants[256];
+extern const int blocks[256][7];
 
 int is_plant(int w);
 int is_fluid(int w);
 int is_obstacle(int w);
 int is_transparent(int w);
 int is_destructable(int w);
+int getType(int w);

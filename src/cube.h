@@ -11,7 +11,12 @@ void make_cube(
     int left, int right, int top, int bottom, int front, int back,
     float x, float y, float z, float n, int w);
     
-void make_fluid_cube(
+void makeFluidCube(
+	float *data, float ao[6][4], float light[6][4],
+    int left, int right, int top, int bottom, int front, int back,
+    float x, float y, float z, float n, int w);
+
+void makeSlab(
 	float *data, float ao[6][4], float light[6][4],
     int left, int right, int top, int bottom, int front, int back,
     float x, float y, float z, float n, int w);

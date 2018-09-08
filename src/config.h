@@ -12,7 +12,7 @@
 #define DAY_LENGTH 600
 #define INVERT_MOUSE 0
 
-#define VIEW_SPEED 1.6
+#define VIEW_SPEED 1.8
 
 // rendering options
 #define SHOW_LIGHTS 1
@@ -25,6 +25,7 @@
 #define SHOW_INFO_TEXT 0
 #define SHOW_CHAT_TEXT 1
 #define SHOW_PLAYER_NAMES 1
+#define FOV 75
 
 // key bindings
 #define CRAFT_KEY_FORWARD 'x'
@@ -98,4 +99,3 @@ void get_default_db_path(char *path);
 void get_server_db_cache_path(char *path);
 int get_starting_draw_radius();
 void parse_startup_config(int argc, char **argv);
-
